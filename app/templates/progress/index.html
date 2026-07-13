@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+    <h1 class="h2 fw-bold">Progress Tracking</h1>
+    <a href="{{ url_for('progress.add') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i> Add Record
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0 fw-semibold">Progress History</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        {% if current_user.role != 'member' %}
+                        <th>Member</th>
+                        {% endif %}
+                        <th>Weight</th>
+                        <th>Body Fat</th>
+                        <th>Chest</th>
+                        <th>Waist</th>
+                        <th>Arms</th>
+                        <th>Legs</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.date.strftime('%b %d, %Y') }}</td>
+                        {% if current_user.role != 'member' %}
+                        <td>{{ record.member.user.first_name }} {{ record.member.user.last_name }}</td>
+                        {% endif %}
+                        <td>{{ record.weight or '-' }}{% if record.weight %} kg{% endif %}</td>
+                        <td>{{ record.body_fat_percent or '-' }}{% if record.body_fat_percent %}%{% endif %}</td>
+                        <td>{{ record.chest or '-' }}{% if record.chest %} cm{% endif %}</td>
+                        <td>{{ record.waist or '-' }}{% if record.waist %} cm{% endif %}</td>
+                        <td>{{ record.arms or '-' }}{% if record.arms %} cm{% endif %}</td>
+                        <td>{{ record.legs or '-' }}{% if record.legs %} cm{% endif %}</td>
+                        <td>
+                            <a href="{{ url_for('progress.edit', record_id=record.id) }}" class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                            onclick="confirmDelete('{{ url_for('progress.delete', record_id=record.id) }}', '{{ record.date.strftime("%b %d, %Y") }}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{% if current_user.role == 'member' %}8{% else %}9{% endif %}" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 mb-3 d-block"></i>
+                            No progress records yet
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the progress record for <strong id="deleteEntityName"></strong>? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

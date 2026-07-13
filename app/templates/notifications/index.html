@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+    <h1 class="h2 fw-bold">Notifications</h1>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-semibold">All Notifications</h5>
+        {% set unread = notifications | selectattr('is_read', 'equalto', false) | list %}
+        {% if unread %}
+        <span class="badge bg-danger">{{ unread | length }} unread</span>
+        {% endif %}
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            {% for notification in notifications %}
+            <div class="list-group-item d-flex align-items-start gap-3 {% if not notification.is_read %}bg-light{% endif %}">
+                <div class="flex-shrink-0 mt-1" aria-hidden="true">
+                    {% if notification.type == 'success' %}
+                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                    {% elif notification.type == 'warning' %}
+                    <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+                    {% elif notification.type == 'danger' %}
+                    <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                    {% else %}
+                    <i class="bi bi-info-circle-fill text-primary fs-4"></i>
+                    {% endif %}
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h6 class="mb-1 fw-semibold">{{ notification.title }}</h6>
+                        <small class="text-muted ms-2">{{ notification.created_at.strftime('%b %d, %Y %H:%M') }}</small>
+                    </div>
+                    <p class="mb-2 text-muted">{{ notification.message }}</p>
+                    <div class="d-flex gap-2">
+                        {% if not notification.is_read %}
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary"
+                                data-markread-url="{{ url_for('notifications.mark_read', id=notification.id) }}"
+                                aria-label="Mark '{{ notification.title }}' as read">
+                            <i class="bi bi-check2" aria-hidden="true"></i> Mark Read
+                        </button>
+                        {% endif %}
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="confirmDelete('{{ url_for('notifications.delete', id=notification.id) }}', '{{ notification.title | e }}')"
+                                aria-label="Dismiss notification '{{ notification.title }}'">
+                            <i class="bi bi-trash" aria-hidden="true"></i> Dismiss
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="list-group-item text-center py-5 text-muted">
+                <i class="bi bi-bell-slash fs-1 mb-3 d-block" aria-hidden="true"></i>
+                No notifications — you're all caught up!
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Shared Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1"
+     aria-labelledby="dismissModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dismissModalLabel">Dismiss Notification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to dismiss <strong id="deleteEntityName"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Dismiss</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

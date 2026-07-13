@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+    <h1 class="h2 fw-bold">Reports</h1>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stats-card-blue">
+            <h5 class="fw-semibold mb-1">Today's Attendance</h5>
+            <h2 class="fw-bold mb-0">{{ today_attendance }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card-green">
+            <h5 class="fw-semibold mb-1">Active Members</h5>
+            <h2 class="fw-bold mb-0">{{ active_members }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card-orange">
+            <h5 class="fw-semibold mb-1">Total Memberships</h5>
+            <h2 class="fw-bold mb-0">{{ membership_plans }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0 fw-semibold">Export Reports</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-4">
+                <div class="border rounded p-3 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-calendar-check text-primary fs-4"></i>
+                        <span class="fw-medium">Attendance Report</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm">CSV</button>
+                        <button class="btn btn-outline-secondary btn-sm">PDF</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="border rounded p-3 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-ticket-perforated text-success fs-4"></i>
+                        <span class="fw-medium">Membership Report</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm">CSV</button>
+                        <button class="btn btn-outline-secondary btn-sm">PDF</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="border rounded p-3 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-people text-warning fs-4"></i>
+                        <span class="fw-medium">Members Report</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm">CSV</button>
+                        <button class="btn btn-outline-secondary btn-sm">PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

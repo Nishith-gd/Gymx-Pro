@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+    <h1 class="h2 fw-bold">Edit Diet Plan</h1>
+    <a href="{{ url_for('diet.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if current_user.role != 'member' %}
+            <div class="mb-4">
+                <label for="member_id" class="form-label fw-medium">Member</label>
+                <select class="form-select" id="member_id" name="member_id" required>
+                    <option value="">Select member...</option>
+                    {% for member in members %}
+                    <option value="{{ member.id }}" {% if member.id == plan.member_id %}selected{% endif %}>
+                        {{ member.user.first_name }} {{ member.user.last_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="mb-4">
+                <label for="name" class="form-label fw-medium">Plan Name</label>
+                <input type="text" class="form-control" id="name" name="name" required
+                       value="{{ form_data.name if form_data else plan.name }}" placeholder="e.g. Weight Loss Plan">
+            </div>
+            <div class="mb-4">
+                <label for="description" class="form-label fw-medium">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3"
+                          placeholder="Add a description for this diet plan...">{{ form_data.description if form_data else (plan.description or '') }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save me-2"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

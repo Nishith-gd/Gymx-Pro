@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+    <h1 class="h2 fw-bold">Diet Plans</h1>
+    <a href="{{ url_for('diet.add') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i> Create Plan
+    </a>
+</div>
+
+{% if plans %}
+<div class="row g-4">
+    {% for plan in plans %}
+    <div class="col-md-6 col-xl-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="fw-bold mb-0">{{ plan.name }}</h5>
+                </div>
+                {% if current_user.role != 'member' and plan.member %}
+                <p class="text-muted small mb-2">
+                    <i class="bi bi-person me-1"></i>
+                    {{ plan.member.user.first_name }} {{ plan.member.user.last_name }}
+                </p>
+                {% endif %}
+                {% if plan.description %}
+                <p class="text-muted small">{{ plan.description }}</p>
+                {% endif %}
+                <p class="text-muted small">
+                    <i class="bi bi-egg-fried me-1"></i>
+                    {{ plan.meals | length }} meal{{ 's' if plan.meals | length != 1 }}
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{{ url_for('diet.edit', plan_id=plan.id) }}" class="btn btn-sm btn-outline-warning">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                        onclick="confirmDelete('{{ url_for('diet.delete', plan_id=plan.id) }}', '{{ plan.name }}')">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5 text-muted">
+        <i class="bi bi-egg-fried fs-1 mb-3 d-block"></i>
+        No diet plans yet — <a href="{{ url_for('diet.add') }}">create your first one</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Confirm Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the diet plan <strong id="deleteEntityName"></strong>? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h2 mb-0">{{ plan.name }}</h1>
+        {% if plan.category %}
+        <span class="badge bg-primary mt-1">{{ plan.category }}</span>
+        {% endif %}
+    </div>
+    <div class="d-flex gap-2">
+        {% if current_user.role in ['admin', 'trainer'] %}
+        <a href="{{ url_for('workouts.edit', plan_id=plan.id) }}" class="btn btn-outline-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        {% endif %}
+        <a href="{{ url_for('workouts.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+{% if plan.description %}
+<div class="card mb-4">
+    <div class="card-body">
+        <p class="mb-0 text-muted">{{ plan.description }}</p>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-semibold">Exercises</h5>
+        <span class="badge bg-secondary">{{ plan_exercises | length }} exercise{{ 's' if plan_exercises | length != 1 }}</span>
+    </div>
+    <div class="card-body p-0">
+        {% if plan_exercises %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:50px">#</th>
+                        <th>Exercise</th>
+                        <th>Muscle Group</th>
+                        <th>Sets</th>
+                        <th>Reps</th>
+                        <th>Rest</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pe in plan_exercises %}
+                    <tr>
+                        <td><span class="badge bg-light text-dark fw-bold">{{ pe.order }}</span></td>
+                        <td>
+                            <strong>{{ pe.exercise.name }}</strong>
+                            {% if pe.exercise.difficulty %}
+                            <br><small class="text-muted">{{ pe.exercise.difficulty }}</small>
+                            {% endif %}
+                        </td>
+                        <td>{{ pe.exercise.muscle_group or '-' }}</td>
+                        <td>{{ pe.sets or pe.exercise.default_sets or '-' }}</td>
+                        <td>{{ pe.reps or pe.exercise.default_reps or '-' }}</td>
+                        <td>
+                            {% set rest = pe.rest_seconds or pe.exercise.default_rest_seconds %}
+                            {{ (rest | string + 's') if rest else '-' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-lightning fs-1 mb-3 d-block"></i>
+            No exercises in this plan yet.
+            {% if current_user.role in ['admin', 'trainer'] %}
+            <br><a href="{{ url_for('workouts.edit', plan_id=plan.id) }}">Add exercises</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if plan.creator %}
+<p class="text-muted mt-3 small">
+    <i class="bi bi-person"></i> Created by {{ plan.creator.first_name }} {{ plan.creator.last_name }}
+    &nbsp;·&nbsp;
+    <i class="bi bi-clock"></i> {{ plan.created_at.strftime('%b %d, %Y') }}
+</p>
+{% endif %}
+{% endblock %}

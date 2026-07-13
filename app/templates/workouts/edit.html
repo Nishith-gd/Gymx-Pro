@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">Edit Workout Plan</h1>
+    <a href="{{ url_for('workouts.detail', plan_id=plan.id) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0 fw-semibold">Plan Details</h5></div>
+    <div class="card-body">
+        <form method="POST" id="workoutForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="name" class="form-label">Plan Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" required
+                       value="{{ form_data.name if form_data else plan.name }}">
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <select class="form-select" id="category" name="category">
+                    <option value="">Select</option>
+                    {% for cat in ['Strength', 'Hypertrophy', 'Fat Loss', 'Cardio', 'Flexibility', 'Endurance'] %}
+                    <option value="{{ cat }}" {% if (form_data.category if form_data else plan.category) == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3">{{ form_data.description if form_data else (plan.description or '') }}</textarea>
+            </div>
+
+            <!-- Exercise Picker -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label fw-semibold mb-0">Exercises</label>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addExerciseRow()">
+                        <i class="bi bi-plus"></i> Add Exercise
+                    </button>
+                </div>
+                <div id="exerciseRows">
+                    <!-- Pre-populated below via JS -->
+                </div>
+                <p class="text-muted small mt-1" id="noExercisesMsg" style="display:none">No exercises added yet.</p>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Exercise data for JS -->
+<script>
+const allExercises = [
+    {% for ex in exercises %}
+    { id: {{ ex.id }}, name: "{{ ex.name | e }}", muscle: "{{ ex.muscle_group or '' | e }}",
+      sets: {{ ex.default_sets or 'null' }}, reps: {{ ex.default_reps or 'null' }}, rest: {{ ex.default_rest_seconds or 'null' }} }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+const existingExercises = [
+    {% for pe in plan_exercises %}
+    { exId: {{ pe.exercise_id }}, sets: {{ pe.sets or 'null' }}, reps: {{ pe.reps or 'null' }}, rest: {{ pe.rest_seconds or 'null' }} }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+let rowCount = 0;
+
+function buildExerciseOptions(selectedId) {
+    return allExercises.map(ex =>
+        `<option value="${ex.id}" ${ex.id == selectedId ? 'selected' : ''}>${ex.name}${ex.muscle ? ' (' + ex.muscle + ')' : ''}</option>`
+    ).join('');
+}
+
+function addExerciseRow(exId=null, sets=null, reps=null, rest=null) {
+    rowCount++;
+    document.getElementById('noExercisesMsg').style.display = 'none';
+    const ex = exId ? allExercises.find(e => e.id == exId) : null;
+    const row = document.createElement('div');
+    row.className = 'exercise-row card mb-2';
+    row.innerHTML = `
+        <div class="card-body py-2 px-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small mb-1">Exercise</label>
+                    <select class="form-select form-select-sm" name="exercise_id[]" required onchange="fillDefaults(this)">
+                        <option value="">Select exercise...</option>
+                        ${buildExerciseOptions(exId)}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small mb-1">Sets</label>
+                    <input type="number" class="form-control form-control-sm" name="sets[]" min="1" placeholder="e.g. 3"
+                           value="${sets !== null ? sets : ''}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small mb-1">Reps</label>
+                    <input type="number" class="form-control form-control-sm" name="reps[]" min="1" placeholder="e.g. 10"
+                           value="${reps !== null ? reps : ''}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small mb-1">Rest (s)</label>
+                    <input type="number" class="form-control form-control-sm" name="rest_seconds[]" min="0" placeholder="e.g. 60"
+                           value="${rest !== null ? rest : ''}">
+                </div>
+                <div class="col-md-2 text-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeRow(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    document.getElementById('exerciseRows').appendChild(row);
+}
+
+function fillDefaults(select) {
+    const exId = parseInt(select.value);
+    const ex = allExercises.find(e => e.id === exId);
+    if (!ex) return;
+    const row = select.closest('.exercise-row');
+    if (ex.sets) row.querySelector('[name="sets[]"]').value = ex.sets;
+    if (ex.reps) row.querySelector('[name="reps[]"]').value = ex.reps;
+    if (ex.rest) row.querySelector('[name="rest_seconds[]"]').value = ex.rest;
+}
+
+function removeRow(btn) {
+    btn.closest('.exercise-row').remove();
+    if (!document.querySelectorAll('.exercise-row').length) {
+        document.getElementById('noExercisesMsg').style.display = '';
+    }
+}
+
+// Pre-populate existing exercises on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (existingExercises.length === 0) {
+        document.getElementById('noExercisesMsg').style.display = '';
+    } else {
+        existingExercises.forEach(pe => addExerciseRow(pe.exId, pe.sets, pe.reps, pe.rest));
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+    <h1 class="h2 fw-bold">Edit Progress Record</h1>
+    <a href="{{ url_for('progress.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if current_user.role != 'member' %}
+            <div class="mb-3">
+                <label for="member_id" class="form-label fw-medium">Member</label>
+                <select class="form-select" id="member_id" name="member_id" required>
+                    <option value="">Select member...</option>
+                    {% for member in members %}
+                    <option value="{{ member.id }}" {% if member.id == record.member_id %}selected{% endif %}>
+                        {{ member.user.first_name }} {{ member.user.last_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="mb-3">
+                <label for="date" class="form-label fw-medium">Date</label>
+                <input type="date" class="form-control" id="date" name="date" required
+                       value="{{ form_data.date if form_data else record.date.strftime('%Y-%m-%d') }}">
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="weight" class="form-label fw-medium">Weight (kg)</label>
+                    <input type="number" step="0.1" class="form-control" id="weight" name="weight"
+                           value="{{ form_data.weight if form_data else (record.weight or '') }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="height" class="form-label fw-medium">Height (cm)</label>
+                    <input type="number" step="0.1" class="form-control" id="height" name="height"
+                           value="{{ form_data.height if form_data else (record.height or '') }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="body_fat_percent" class="form-label fw-medium">Body Fat %</label>
+                <input type="number" step="0.1" class="form-control" id="body_fat_percent" name="body_fat_percent"
+                       value="{{ form_data.body_fat_percent if form_data else (record.body_fat_percent or '') }}">
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="chest" class="form-label fw-medium">Chest (cm)</label>
+                    <input type="number" step="0.1" class="form-control" id="chest" name="chest"
+                           value="{{ form_data.chest if form_data else (record.chest or '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="waist" class="form-label fw-medium">Waist (cm)</label>
+                    <input type="number" step="0.1" class="form-control" id="waist" name="waist"
+                           value="{{ form_data.waist if form_data else (record.waist or '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="arms" class="form-label fw-medium">Arms (cm)</label>
+                    <input type="number" step="0.1" class="form-control" id="arms" name="arms"
+                           value="{{ form_data.arms if form_data else (record.arms or '') }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="legs" class="form-label fw-medium">Legs (cm)</label>
+                    <input type="number" step="0.1" class="form-control" id="legs" name="legs"
+                           value="{{ form_data.legs if form_data else (record.legs or '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="shoulders" class="form-label fw-medium">Shoulders (cm)</label>
+                    <input type="number" step="0.1" class="form-control" id="shoulders" name="shoulders"
+                           value="{{ form_data.shoulders if form_data else (record.shoulders or '') }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="notes" class="form-label fw-medium">Notes</label>
+                <textarea class="form-control" id="notes" name="notes" rows="3">{{ form_data.notes if form_data else (record.notes or '') }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save me-2"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

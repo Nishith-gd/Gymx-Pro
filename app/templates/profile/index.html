@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold">My Profile</h1>
+    <span class="badge bg-primary fs-6 px-3 py-2">{{ current_user.role | capitalize }}</span>
+</div>
+
+<div class="row g-4">
+    <!-- Profile summary card -->
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body py-5">
+                <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mb-3"
+                     style="width:88px;height:88px;">
+                    <i class="bi bi-person-circle text-primary" style="font-size:3rem;"></i>
+                </div>
+                <h4 class="fw-bold mb-1">{{ current_user.first_name or '' }} {{ current_user.last_name or '' }}</h4>
+                <p class="text-muted mb-1">{{ current_user.email }}</p>
+                <p class="text-muted small mb-0">{{ current_user.phone or 'No phone on file' }}</p>
+                {% if current_user.created_at %}
+                <p class="text-muted small mt-2 mb-0">
+                    <i class="bi bi-calendar3 me-1"></i>
+                    Member since {{ current_user.created_at.strftime('%b %Y') }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if member %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-info-circle me-2 text-primary"></i>Membership Info</h6>
+            </div>
+            <div class="card-body">
+                {% set active_ms = member.memberships | selectattr('status', 'equalto', 'active') | list %}
+                {% if active_ms %}
+                    {% set ms = active_ms[0] %}
+                    <p class="mb-1"><span class="text-muted small">Plan</span><br>
+                        <strong>{{ ms.plan.name }}</strong></p>
+                    <p class="mb-1"><span class="text-muted small">Expires</span><br>
+                        <strong>{{ ms.end_date.strftime('%b %d, %Y') }}</strong></p>
+                    <p class="mb-0"><span class="text-muted small">Status</span><br>
+                        <span class="badge bg-success">Active</span></p>
+                {% else %}
+                    <p class="text-muted mb-0">No active membership plan.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if trainer %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-person-badge me-2 text-primary"></i>Trainer Info</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><span class="text-muted small">Specialization</span><br>
+                    <strong>{{ trainer.specialization or '—' }}</strong></p>
+                <p class="mb-0"><span class="text-muted small">Experience</span><br>
+                    <strong>{{ trainer.experience_years or '—' }} years</strong></p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Edit profile form -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 fw-semibold"><i class="bi bi-pencil-square me-2 text-primary"></i>Edit Profile</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="needs-validation" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="first_name" name="first_name"
+                                   value="{{ form_data.first_name if form_data else (current_user.first_name or '') }}"
+                                   required maxlength="50">
+                            <div class="invalid-feedback">First name is required.</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="last_name" name="last_name"
+                                   value="{{ form_data.last_name if form_data else (current_user.last_name or '') }}"
+                                   required maxlength="50">
+                            <div class="invalid-feedback">Last name is required.</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   value="{{ form_data.email if form_data else (current_user.email or '') }}"
+                                   required>
+                        </div>
+                        <div class="invalid-feedback">A valid email is required.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="phone" class="form-label">Phone</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                            <input type="tel" class="form-control" id="phone" name="phone"
+                                   value="{{ form_data.phone if form_data else (current_user.phone or '') }}"
+                                   placeholder="Optional">
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <h6 class="fw-semibold mb-3 text-muted">Change Password <small class="fw-normal">(leave blank to keep current)</small></h6>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" id="new_password" name="new_password"
+                                       minlength="8" placeholder="Min 8 characters">
+                            </div>
+                            <div class="invalid-feedback">Password must be at least 8 characters.</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                                       placeholder="Repeat new password">
+                            </div>
+                            <div class="invalid-feedback">Passwords do not match.</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-check-lg me-2"></i>Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

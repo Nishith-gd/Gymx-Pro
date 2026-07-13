@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">Edit Membership Plan</h1>
+    <a href="{{ url_for('memberships.plans') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="name" class="form-label">Plan Name</label>
+                <input type="text" class="form-control" id="name" name="name" required
+                       value="{{ form_data.name if form_data else plan.name }}">
+            </div>
+            <div class="mb-3">
+                <label for="duration_months" class="form-label">Duration (Months)</label>
+                <input type="number" class="form-control" id="duration_months" name="duration_months" min="1" required
+                       value="{{ form_data.duration_months if form_data else plan.duration_months }}">
+            </div>
+            <div class="mb-3">
+                <label for="price" class="form-label">Price ($)</label>
+                <input type="number" step="0.01" class="form-control" id="price" name="price" min="0" required
+                       value="{{ form_data.price if form_data else plan.price }}">
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3">{{ form_data.description if form_data else (plan.description or '') }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

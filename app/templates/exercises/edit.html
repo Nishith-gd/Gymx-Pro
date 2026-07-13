@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">Edit Exercise</h1>
+    <a href="{{ url_for('exercises.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="name" class="form-label">Exercise Name</label>
+                <input type="text" class="form-control" id="name" name="name" required
+                       value="{{ form_data.name if form_data else exercise.name }}">
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="muscle_group" class="form-label">Muscle Group</label>
+                    <input type="text" class="form-control" id="muscle_group" name="muscle_group"
+                           value="{{ form_data.muscle_group if form_data else (exercise.muscle_group or '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="equipment" class="form-label">Equipment</label>
+                    <input type="text" class="form-control" id="equipment" name="equipment"
+                           value="{{ form_data.equipment if form_data else (exercise.equipment or '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="difficulty" class="form-label">Difficulty</label>
+                    <select class="form-select" id="difficulty" name="difficulty">
+                        <option value="">Select</option>
+                        {% for d in ['Beginner', 'Intermediate', 'Advanced'] %}
+                        <option value="{{ d }}" {% if (form_data.difficulty if form_data else exercise.difficulty) == d %}selected{% endif %}>{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3">{{ form_data.description if form_data else (exercise.description or '') }}</textarea>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="default_sets" class="form-label">Default Sets</label>
+                    <input type="number" class="form-control" id="default_sets" name="default_sets" min="1"
+                           value="{{ form_data.default_sets if form_data else (exercise.default_sets or '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="default_reps" class="form-label">Default Reps</label>
+                    <input type="number" class="form-control" id="default_reps" name="default_reps" min="1"
+                           value="{{ form_data.default_reps if form_data else (exercise.default_reps or '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="default_rest_seconds" class="form-label">Default Rest (Seconds)</label>
+                    <input type="number" class="form-control" id="default_rest_seconds" name="default_rest_seconds" min="0"
+                           value="{{ form_data.default_rest_seconds if form_data else (exercise.default_rest_seconds or '') }}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

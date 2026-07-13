@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">Memberships</h1>
+    <a href="{{ url_for('memberships.add_membership') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle" aria-hidden="true"></i> Assign Membership
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Plan</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membership in memberships %}
+                    <tr>
+                        <td>{{ membership.member.user.first_name }} {{ membership.member.user.last_name }}</td>
+                        <td>{{ membership.plan.name }}</td>
+                        <td>{{ membership.start_date }}</td>
+                        <td>{{ membership.end_date }}</td>
+                        <td>
+                            {% if membership.payment_status == 'paid' %}
+                                <span class="badge bg-success">Paid</span>
+                            {% elif membership.payment_status == 'failed' %}
+                                <span class="badge bg-danger">Failed</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if membership.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif membership.status == 'expired' %}
+                                <span class="badge bg-secondary">Expired</span>
+                            {% else %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('memberships.edit_membership', membership_id=membership.id) }}"
+                               class="btn btn-sm btn-outline-warning"
+                               aria-label="Edit membership for {{ membership.member.user.first_name }} {{ membership.member.user.last_name }}">
+                                <i class="bi bi-pencil" aria-hidden="true"></i> Edit
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    aria-label="Delete membership for {{ membership.member.user.first_name }} {{ membership.member.user.last_name }}"
+                                    onclick="confirmDelete('{{ url_for('memberships.delete_membership', membership_id=membership.id) }}', '{{ membership.member.user.first_name }} {{ membership.member.user.last_name }}&#39;s {{ membership.plan.name }} membership')">
+                                <i class="bi bi-trash" aria-hidden="true"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-card-checklist fs-1 mb-3 d-block" aria-hidden="true"></i>
+                            No memberships yet — <a href="{{ url_for('memberships.add_membership') }}">assign your first one</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Shared Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1"
+     aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong id="deleteEntityName"></strong>?
+                This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

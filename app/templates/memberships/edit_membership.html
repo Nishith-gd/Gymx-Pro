@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">Edit Membership</h1>
+    <a href="{{ url_for('memberships.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="member_id" class="form-label">Member</label>
+                <select class="form-select" id="member_id" name="member_id" required>
+                    {% for member in members %}
+                    <option value="{{ member.id }}"
+                        {% if (form_data.member_id|int if form_data else membership.member_id) == member.id %}selected{% endif %}>
+                        {{ member.user.first_name }} {{ member.user.last_name }} ({{ member.user.email }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="plan_id" class="form-label">Membership Plan</label>
+                <select class="form-select" id="plan_id" name="plan_id" required>
+                    {% for plan in plans %}
+                    <option value="{{ plan.id }}"
+                        {% if (form_data.plan_id|int if form_data else membership.plan_id) == plan.id %}selected{% endif %}>
+                        {{ plan.name }} — ${{ plan.price }} / {{ plan.duration_months }} month{{ 's' if plan.duration_months != 1 }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" required
+                           value="{{ form_data.start_date if form_data else membership.start_date }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" required
+                           value="{{ form_data.end_date if form_data else membership.end_date }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    {% set current_status = form_data.status if form_data else membership.status %}
+                    <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="expired" {% if current_status == 'expired' %}selected{% endif %}>Expired</option>
+                    <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="payment_status" class="form-label">Payment Status</label>
+                <select class="form-select" id="payment_status" name="payment_status">
+                    {% set current_payment = form_data.payment_status if form_data else membership.payment_status %}
+                    <option value="pending" {% if current_payment == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="paid" {% if current_payment == 'paid' %}selected{% endif %}>Paid</option>
+                    <option value="failed" {% if current_payment == 'failed' %}selected{% endif %}>Failed</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save" aria-hidden="true"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

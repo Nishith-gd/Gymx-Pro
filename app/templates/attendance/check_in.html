@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">Check In</h1>
+    <a href="{{ url_for('attendance.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if current_user.role == 'admin' %}
+            <div class="mb-3">
+                <label for="member_id" class="form-label">Select Member</label>
+                <select class="form-select" id="member_id" name="member_id" required>
+                    {% for member in members %}
+                    <option value="{{ member.id }}">
+                        {{ member.user.first_name }} {{ member.user.last_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right"></i> Check In
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

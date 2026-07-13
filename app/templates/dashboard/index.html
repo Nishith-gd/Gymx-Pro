@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+    <h1 class="h2 fw-bold">Dashboard</h1>
+    <small class="text-muted">Welcome back, {{ current_user.first_name or current_user.email }}!</small>
+</div>
+
+<!-- Stats Cards with skeleton loader effect -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-1 opacity-75">{{ stat1_label }}</p>
+                        <!-- Skeleton shimmer (hidden after load) -->
+                        <div class="stat-skeleton">
+                            <div class="skeleton skeleton-value"></div>
+                        </div>
+                        <h3 class="mb-0 stat-value-real">{{ stat1_value }}</h3>
+                    </div>
+                    <i class="bi {{ stat1_icon }} fs-1 opacity-50" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card-green">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-1 opacity-75">{{ stat2_label }}</p>
+                        <div class="stat-skeleton">
+                            <div class="skeleton skeleton-value"></div>
+                        </div>
+                        <h3 class="mb-0 stat-value-real">{{ stat2_value }}</h3>
+                    </div>
+                    <i class="bi {{ stat2_icon }} fs-1 opacity-50" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card-orange">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-1 opacity-75">{{ stat3_label }}</p>
+                        <div class="stat-skeleton">
+                            <div class="skeleton skeleton-value"></div>
+                        </div>
+                        <h3 class="mb-0 stat-value-real">{{ stat3_value }}</h3>
+                    </div>
+                    <i class="bi {{ stat3_icon }} fs-1 opacity-50" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card-blue">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-1 opacity-75">{{ stat4_label }}</p>
+                        <div class="stat-skeleton">
+                            <div class="skeleton skeleton-value"></div>
+                        </div>
+                        <h3 class="mb-0 stat-value-real">{{ stat4_value }}</h3>
+                    </div>
+                    <i class="bi {{ stat4_icon }} fs-1 opacity-50" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="bi bi-clock-history me-2 text-primary" aria-hidden="true"></i>
+                    Recent Activity
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if activity %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>{{ 'Activity' if is_member_view else 'Member' }}</th>
+                                <th>Action</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in activity %}
+                            <tr>
+                                <td class="fw-medium">{{ event.name }}</td>
+                                <td><span class="badge bg-{{ event.badge }}">{{ event.action }}</span></td>
+                                <td class="text-muted">{{ event.time.strftime('%b %d, %I:%M %p') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-5 px-3">
+                    <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50" aria-hidden="true"></i>
+                    {% if is_member_view %}
+                        No activity yet — check in or log a workout to get started.
+                    {% else %}
+                        No recent activity yet.
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="bi bi-lightning me-2 text-primary" aria-hidden="true"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('members.add') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2" aria-hidden="true"></i>Add Member
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('attendance.check_in') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-calendar-check me-2" aria-hidden="true"></i>Check In
+                    </a>
+                    {% if current_user.role in ['admin', 'trainer'] %}
+                    <a href="{{ url_for('workouts.add') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-list-check me-2" aria-hidden="true"></i>New Workout Plan
+                    </a>
+                    {% endif %}
+                    {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('memberships.add_plan') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-ticket-perforated me-2" aria-hidden="true"></i>New Membership Plan
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('profile.index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-person me-2" aria-hidden="true"></i>My Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

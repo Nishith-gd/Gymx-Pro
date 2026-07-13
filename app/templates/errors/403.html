@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 – Access Denied | GymX Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <style>
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .error-code {
+            font-size: 7rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="text-center px-4">
+        <div class="error-code mb-2">403</div>
+        <div class="mb-4">
+            <i class="bi bi-shield-lock-fill text-danger" style="font-size:3rem;"></i>
+        </div>
+        <h2 class="fw-bold mb-2">Access Denied</h2>
+        <p class="text-muted mb-4 fs-5">
+            You don't have permission to view this page.<br>
+            <small>If you think this is a mistake, contact your administrator.</small>
+        </p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="/" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-house me-2"></i>Go Home
+            </a>
+            <button onclick="history.back()" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-2"></i>Go Back
+            </button>
+        </div>
+    </div>
+    <script>
+        // Apply saved dark mode preference
+        if (localStorage.getItem('gymx-theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold">Exercise Library</h1>
+    {% if current_user.role in ['admin', 'trainer'] %}
+    <a href="{{ url_for('exercises.add') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle" aria-hidden="true"></i> Add Exercise
+    </a>
+    {% endif %}
+</div>
+
+<!-- Search + sort bar -->
+<div class="card mb-3">
+    <div class="card-body py-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-sm-6 col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text" aria-hidden="true"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" name="q" value="{{ q }}"
+                           placeholder="Search by name, muscle group…" aria-label="Search exercises">
+                </div>
+            </div>
+            <div class="col-auto">
+                <select class="form-select" name="sort" aria-label="Sort by">
+                    <option value="name"       {% if sort == 'name'       %}selected{% endif %}>Sort: Name</option>
+                    <option value="muscle"     {% if sort == 'muscle'     %}selected{% endif %}>Sort: Muscle Group</option>
+                    <option value="difficulty" {% if sort == 'difficulty' %}selected{% endif %}>Sort: Difficulty</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-primary">Apply</button>
+                {% if q %}
+                <a href="{{ url_for('exercises.index') }}" class="btn btn-outline-secondary ms-1">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="{{ url_for('exercises.index', q=q, sort='name') }}" aria-label="Sort by name">
+                                Name {% if sort == 'name' %}<i class="bi bi-chevron-up" aria-hidden="true"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ url_for('exercises.index', q=q, sort='muscle') }}" aria-label="Sort by muscle group">
+                                Muscle Group {% if sort == 'muscle' %}<i class="bi bi-chevron-up" aria-hidden="true"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th>Equipment</th>
+                        <th>
+                            <a href="{{ url_for('exercises.index', q=q, sort='difficulty') }}" aria-label="Sort by difficulty">
+                                Difficulty {% if sort == 'difficulty' %}<i class="bi bi-chevron-up" aria-hidden="true"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th>Sets</th>
+                        <th>Reps</th>
+                        <th>Rest</th>
+                        {% if current_user.role in ['admin', 'trainer'] %}
+                        <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exercise in exercises %}
+                    <tr>
+                        <td class="fw-medium">{{ exercise.name }}</td>
+                        <td>{{ exercise.muscle_group or '—' }}</td>
+                        <td>{{ exercise.equipment or '—' }}</td>
+                        <td>
+                            {% if exercise.difficulty %}
+                            <span class="badge bg-{{ 'success' if exercise.difficulty == 'beginner' else 'warning' if exercise.difficulty == 'intermediate' else 'danger' }}">
+                                {{ exercise.difficulty | capitalize }}
+                            </span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>{{ exercise.default_sets or '—' }}</td>
+                        <td>{{ exercise.default_reps or '—' }}</td>
+                        <td>{{ exercise.default_rest_seconds or '—' }}{% if exercise.default_rest_seconds %}s{% endif %}</td>
+                        {% if current_user.role in ['admin', 'trainer'] %}
+                        <td>
+                            <a href="{{ url_for('exercises.edit', exercise_id=exercise.id) }}"
+                               class="btn btn-sm btn-outline-warning"
+                               aria-label="Edit {{ exercise.name }}">
+                                <i class="bi bi-pencil" aria-hidden="true"></i> Edit
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    aria-label="Delete {{ exercise.name }}"
+                                    onclick="confirmDelete('{{ url_for('exercises.delete', exercise_id=exercise.id) }}', '{{ exercise.name }}')">
+                                <i class="bi bi-trash" aria-hidden="true"></i> Delete
+                            </button>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{{ '8' if current_user.role in ['admin','trainer'] else '7' }}"
+                            class="text-center py-5 text-muted">
+                            <i class="bi bi-lightning fs-1 mb-3 d-block" aria-hidden="true"></i>
+                            {% if q %}
+                                No exercises match "{{ q }}" — <a href="{{ url_for('exercises.index') }}">clear search</a>
+                            {% else %}
+                                No exercises yet{% if current_user.role in ['admin', 'trainer'] %} — <a href="{{ url_for('exercises.add') }}">add your first one</a>{% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if pagination.pages > 1 %}
+    <div class="card-footer bg-transparent border-top py-3">
+        <nav aria-label="Exercises pagination">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('exercises.index', page=pagination.prev_num, q=q, sort=sort) }}"
+                       aria-label="Previous page"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>
+                </li>
+                {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if p %}
+                    <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('exercises.index', page=p, q=q, sort=sort) }}">{{ p }}</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('exercises.index', page=pagination.next_num, q=q, sort=sort) }}"
+                       aria-label="Next page"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                </li>
+            </ul>
+        </nav>
+        <p class="text-center text-muted small mt-2 mb-0">
+            Showing {{ ((pagination.page-1)*pagination.per_page)+1 }}–{{ [pagination.page*pagination.per_page, pagination.total]|min }}
+            of {{ pagination.total }} exercises
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+{% if current_user.role in ['admin', 'trainer'] %}
+<!-- Shared Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong id="deleteEntityName"></strong>? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
