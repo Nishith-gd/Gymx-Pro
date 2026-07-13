@@ -35,14 +35,17 @@ A production-ready full-stack gym-management web application built with Flask, S
 
 | Layer | Technology |
 |---|---|
-| Backend | Flask 3, Flask-SQLAlchemy, Flask-Login, Flask-Migrate |
-| Forms | Flask-WTF (CSRF), server-side validation |
-| Security | Flask-Talisman (CSP / HSTS), Flask-Limiter (rate limits) |
-| Frontend | Bootstrap 5, Bootstrap Icons, vanilla JS (AJAX, dark mode) |
-| Database | SQLite (dev) / MySQL via PyMySQL (prod) / PostgreSQL |
-| WSGI | Gunicorn |
-| Tests | pytest + pytest-cov |
-| CI | GitHub Actions |
+| Programming Language | Python 3 |
+| Backend Framework | Flask 3, Flask-SQLAlchemy, Flask-Login, Flask-Migrate |
+| Frontend | HTML5, CSS3, Bootstrap 5, Bootstrap Icons, JavaScript (ES6), AJAX |
+| Forms & Validation | Flask-WTF, WTForms, CSRF Protection, Server-side Validation |
+| Database | SQLite (Development), MySQL (PyMySQL), PostgreSQL (Production Ready) |
+| Security | Flask-Talisman (CSP/HSTS), Flask-Limiter (Rate Limiting), CSRF Protection |
+| ORM | SQLAlchemy |
+| WSGI Server | Gunicorn |
+| Testing | Pytest, pytest-cov |
+| Version Control | Git, GitHub |
+| CI/CD | GitHub Actions |
 
 ---
 
